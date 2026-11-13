@@ -10,6 +10,7 @@
 [![Live Demo](https://img.shields.io/badge/Jogar%20Agora-rogerioc.github.io%2Fgourmet--game-d97706?style=for-the-badge&logo=gamepad&logoColor=white)](https://rogerioc.github.io/gourmet-game/)
 [![Gourmet Map BH](https://img.shields.io/badge/Mapa%20Interativo-Gourmet%20Map%20BH-9f1239?style=for-the-badge&logo=googlemaps&logoColor=white)](https://rogerioc.github.io/gourmet-map/)
 [![IDE: Google Antigravity](https://img.shields.io/badge/IDE-Google%20Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://github.com/rogerioc/awesome-ai-arsenal)
+[![Model: Gemini 4 Argon](https://img.shields.io/badge/Model-Gemini%204%20Argon-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://github.com/rogerioc/awesome-ai-arsenal)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-rogerioc%2Fgourmet--game-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/rogerioc/gourmet-game)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
@@ -80,8 +81,8 @@ O desenvolvimento, curadoria de dados, design visual e automação deste projeto
 | Camada | Ferramenta / Modelo | Papel no Projeto |
 |---|---|---|
 | **IDE Agêntica** | **Google Antigravity IDE** | Ambiente de desenvolvimento agêntico (Google DeepMind) com execução integrada de código, subagentes, skills e deploy no GitHub Pages. |
-| **Modelos Principais (LLM)** | **Gemini 2.5 Pro / Claude Opus 4.6** | Arquitetura da aplicação, motor de recomendação por afinidade (*Plano B Inteligente*), chaveamento em `SVG.js` e sincronização de dados em Python. |
-| **Geração Visual (Ícone/Logo)** | **Image Generator Subagent (Imagen 3)** | Criação do ícone 3D do pino de localização em formato de dado dourado (`favicon.png` / `og-icon.png`). |
+| **Modelo Principal (LLM)** | **Gemini 4 Argon** | Arquitetura da aplicação, motor de recomendação por afinidade (*Plano B Inteligente*), chaveamento em `SVG.js` e sincronização de dados em Python. |
+| **Geração Visual (Ícone/Logo)** | **Image Generator Subagent** | Criação do ícone 3D do pino de localização em formato de dado dourado (`favicon.png` / `og-icon.png`). |
 | **Agent Skills & QA** | **`modern-web-guidance` + Playwright** | Aplicação de padrões modernos da Web (View Transitions API, `<dialog closedby="any">`) e captura automatizada dos screenshots em alta resolução (Retina 2x). |
 
 ---
