@@ -98,15 +98,8 @@ O desenvolvimento, curadoria de dados, design visual e automação deste projeto
    # Acesse http://localhost:8080
    ```
 
-2. **Sincronizar base de restaurantes (após atualizar os scrapers na pasta raiz):**
+2. **Sincronizar base de restaurantes (`data/restaurants.js`):**
    ```bash
-   # Coletar/atualizar restaurantes Top BH (Google Places 4.5+ & Hits do Instagram)
-   python3 ../fetch_top_bh_google.py
-
-   # Ou adicionar rapidamente um restaurante sugerido por amigos:
-   python3 ../fetch_top_bh_google.py --add "Nome do Restaurante, Bairro" "Culinária" "@instagram"
-
-   # Exportar tudo para data/restaurants.js
    python3 sync_data.py
    ```
 
