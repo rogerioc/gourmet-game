@@ -5,8 +5,11 @@
 > **Acabe com a indecisão de "onde vamos comer hoje?" em menos de 30 segundos.**  
 > Um mini-game interativo com **1.209 restaurantes** mapeados dos circuitos **Duo Gourmet** e **Restaurant Week** em Belo Horizonte, região e São Paulo.
 
+### 👉 **Acesse e jogue aqui:** [https://rogerioc.github.io/gourmet-game/](https://rogerioc.github.io/gourmet-game/)
+
 [![Live Demo](https://img.shields.io/badge/Jogar%20Agora-rogerioc.github.io%2Fgourmet--game-d97706?style=for-the-badge&logo=gamepad&logoColor=white)](https://rogerioc.github.io/gourmet-game/)
 [![Gourmet Map BH](https://img.shields.io/badge/Mapa%20Interativo-Gourmet%20Map%20BH-9f1239?style=for-the-badge&logo=googlemaps&logoColor=white)](https://rogerioc.github.io/gourmet-map/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-rogerioc%2Fgourmet--game-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/rogerioc/gourmet-game)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 </div>
