@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gourmet Game BH | Qual o Seu Restaurante de Hoje?</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS para o mini-mapa do restaurante vencedor -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Analytics (Umami Cloud - Sem Cookies & LGPD-friendly) -->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="95596978-ae9a-43d9-b9cb-5f4d3c93ea3f"></script>
+</head>
+<body>
+
+    <!-- Top Header -->
+    <header class="app-header">
+        <div class="header-inner">
+            <a href="#" class="brand" id="brandHomeLink">
+                <div class="brand-icon" aria-hidden="true">
+                    <i class="fa-solid fa-dice"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Gourmet <span>Game</span></h1>
+                    <p class="brand-subtitle">Decisor interativo • Duo Gourmet &amp; Restaurant Week</p>
+                </div>
+            </a>
+
+            <nav class="mode-tabs" aria-label="Modos de jogo">
+                <button type="button" class="mode-tab active" id="tabBattle" data-mode="battle" aria-pressed="true">
+                    <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+                    Copa do Jantar
+                </button>
+                <button type="button" class="mode-tab" id="tabSlot" data-mode="slot" aria-pressed="false">
+                    <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                    Roleta com Trava 🔒
+                </button>
+            </nav>
+
+            <a href="https://rogerioc.github.io/gourmet-map/" class="header-map-link" id="openFullMapLink" target="_blank" rel="noopener">
+                <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+                Abrir Mapa Completo
+            </a>
+        </div>
+    </header>
+
+    <!-- Context Filter Bar -->
+    <section class="context-bar" aria-label="Filtros do sorteio para hoje">
+        <div class="context-inner">
+            <div class="context-filters">
+                <div class="filter-pill">
+                    <i class="fa-solid fa-city" aria-hidden="true"></i>
+                    <label for="filterCity">Cidade:</label>
+                    <select id="filterCity">
+                        <option value="Belo Horizonte">Belo Horizonte</option>
+                    </select>
+                </div>
+
+                <div class="filter-pill">
+                    <i class="fa-solid fa-award" aria-hidden="true"></i>
+                    <label for="filterCircuit">Circuito:</label>
+                    <select id="filterCircuit">
+                        <option value="all">Todos os Circuitos</option>
+                        <option value="duo">Duo Gourmet</option>
+                        <option value="rw">Restaurant Week</option>
+                        <option value="both">Duo + Restaurant Week</option>
+                    </select>
+                </div>
+
+                <div class="filter-pill">
+                    <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                    <label for="filterMoment">Quando:</label>
+                    <select id="filterMoment">
+                        <option value="any">Qualquer dia/horário</option>
+                        <option value="open_now">🟢 Aberto Agora</option>
+                        <option value="today_any">Hoje (Almoço ou Jantar)</option>
+                        <option value="today_almoco">Hoje no Almoço</option>
+                        <option value="today_jantar">Hoje no Jantar</option>
+                        <option value="fri_jantar">Sexta à Noite</option>
+                        <option value="sat_almoco">Sábado no Almoço</option>
+                        <option value="sat_jantar">Sábado à Noite</option>
+                        <option value="sun_almoco">Domingo no Almoço</option>
+                    </select>
+                </div>
+
+                <div class="filter-pill">
+                    <i class="fa-solid fa-utensils" aria-hidden="true"></i>
+                    <label for="filterCuisine">Cozinha:</label>
+                    <select id="filterCuisine">
+                        <option value="">Todas as Cozinhas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pool-badge" id="poolCountBadge" aria-live="polite">
+                <i class="fa-solid fa-fire" aria-hidden="true"></i>
+                <span>Carregando...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-container">
+
+        <!-- ================================================
+             VIEW 1: COPA DO JANTAR (BATALHA DE RESTAURANTES)
+             ================================================ -->
+        <section id="viewBattle" class="view-section" aria-labelledby="battle-heading">
+            <div class="tournament-bar">
+                <div class="round-info">
+                    <span class="round-badge" id="roundBadge">Quartas de Final</span>
+                    <div>
+                        <h2 class="round-title" id="battle-heading" tabindex="-1">Qual dá mais vontade hoje?</h2>
+                        <p class="round-subtitle" id="matchCounterText">Duelo 1 de 4 • Escolha o seu preferido para avançar</p>
+                    </div>
+                </div>
+
+                <div class="tournament-controls">
+                    <div class="size-selector" role="group" aria-label="Tamanho do torneio">
+                        <button type="button" class="size-btn" data-size="4">4 (Express)</button>
+                        <button type="button" class="size-btn active" data-size="8">8 (Copa)</button>
+                        <button type="button" class="size-btn" data-size="16">16 (Super)</button>
+                    </div>
+
+                    <button type="button" class="btn-secondary" id="openBracketBtn">
+                        <i class="fa-solid fa-sitemap" aria-hidden="true"></i>
+                        Chaveamento
+                    </button>
+
+                    <button type="button" class="btn-secondary" id="newTournamentBtn">
+                        <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+                        Novo Sorteio
+                    </button>
+                </div>
+            </div>
+
+            <div class="bracket-progress" id="bracketProgress" aria-hidden="true"></div>
+
+            <div id="battleArenaContainer">
+                <div class="battle-arena" id="battleArena">
+                    <!-- Card A -->
+                    <article class="contender-card" id="cardLeft"></article>
+
+                    <!-- VS Divider -->
+                    <div class="vs-divider">
+                        <div class="vs-circle" aria-hidden="true">VS</div>
+                        <button type="button" class="reroll-pair-btn" id="rerollPairBtn" title="Não curtiu nenhum dos dois? Trocar esta dupla">
+                            <i class="fa-solid fa-shuffle" aria-hidden="true"></i>
+                            Trocar dupla
+                        </button>
+                    </div>
+
+                    <!-- Card B -->
+                    <article class="contender-card" id="cardRight"></article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================
+             VIEW 2: ROLETA / SLOT MACHINE COM TRAVA 🔒
+             ================================================ -->
+        <section id="viewSlot" class="view-section" hidden aria-labelledby="slot-heading">
+            <div class="slot-machine-shell">
+                <div class="slot-header">
+                    <h2 id="slot-heading" tabindex="-1">🎰 Roleta Gourmet com Trava</h2>
+                    <p>Gostou da culinária ou do bairro sorteado? Clique em <strong>Travar 🔒</strong> e gire apenas os outros rolos!</p>
+                </div>
+
+                <div class="reels-grid">
+                    <!-- Rolo 1: Culinária -->
+                    <div class="reel-box" id="reelBoxCuisine">
+                        <div class="reel-top">
+                            <span class="reel-label"><i class="fa-solid fa-utensils" aria-hidden="true"></i> 1. Culinária</span>
+                            <button type="button" class="lock-btn" id="lockCuisineBtn" aria-pressed="false">
+                                <i class="fa-solid fa-lock-open" aria-hidden="true"></i>
+                                <span>Travar</span>
+                            </button>
+                        </div>
+                        <div class="reel-window" id="reelWindowCuisine">
+                            <span class="reel-value" id="reelValueCuisine">—</span>
+                        </div>
+                        <select id="manualCuisineSelect" class="reel-manual-select" aria-label="Escolher e travar culinária manualmente">
+                            <option value="">🎲 Sortear qualquer culinária</option>
+                        </select>
+                    </div>
+
+                    <!-- Rolo 2: Bairro -->
+                    <div class="reel-box" id="reelBoxNeighborhood">
+                        <div class="reel-top">
+                            <span class="reel-label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> 2. Bairro</span>
+                            <button type="button" class="lock-btn" id="lockNeighborhoodBtn" aria-pressed="false">
+                                <i class="fa-solid fa-lock-open" aria-hidden="true"></i>
+                                <span>Travar</span>
+                            </button>
+                        </div>
+                        <div class="reel-window" id="reelWindowNeighborhood">
+                            <span class="reel-value" id="reelValueNeighborhood">—</span>
+                        </div>
+                        <select id="manualNeighborhoodSelect" class="reel-manual-select" aria-label="Escolher e travar bairro manualmente">
+                            <option value="">🎲 Sortear qualquer bairro</option>
+                        </select>
+                    </div>
+
+                    <!-- Rolo 3: Restaurante -->
+                    <div class="reel-box" id="reelBoxRestaurant">
+                        <div class="reel-top">
+                            <span class="reel-label"><i class="fa-solid fa-store" aria-hidden="true"></i> 3. Restaurante</span>
+                            <span class="badge-duo" id="slotPoolSubCount">0 opções</span>
+                        </div>
+                        <div class="reel-window" id="reelWindowRestaurant">
+                            <span class="reel-value" id="reelValueRestaurant">—</span>
+                        </div>
+                        <button type="button" class="btn-secondary" id="unlockAllBtn" style="width: 100%; justify-content: center; padding: 6px 10px; font-size: 12px;">
+                            <i class="fa-solid fa-unlock" aria-hidden="true"></i> Destravar tudo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="slot-actions">
+                    <button type="button" class="btn-spin" id="spinSlotBtn">
+                        <i class="fa-solid fa-dice-Five" aria-hidden="true"></i>
+                        Girar Roleta!
+                    </button>
+                    <button type="button" class="btn-secondary" id="acceptSlotWinnerBtn" style="padding: 14px 22px; font-size: 15px;">
+                        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                        Escolher este para Hoje!
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview do Restaurante Sorteado na Roleta -->
+            <div id="slotResultCardContainer"></div>
+        </section>
+
+        <!-- ================================================
+             VIEW 3: TELA DO CAMPEÃO DE HOJE 🏆
+             ================================================ -->
+        <section id="viewChampion" class="view-section" hidden aria-labelledby="champion-heading">
+            <div class="champion-card" id="championCardContent">
+                <!-- Preenchido via JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer com atribuição ao autor -->
+    <footer class="app-footer">
+        <div class="footer-inner">
+            <span>Created by <a href="https://rogerioc.github.io/about/" target="_blank" rel="noopener">Rogerio C.S</a> • Licença MIT</span>
+            <span>Curadoria &amp; Mapa: <a href="https://rogerioc.github.io/gourmet-map/" target="_blank" rel="noopener">Gourmet Map BH</a> (Dados de <a href="https://www.duogourmet.com.br" target="_blank" rel="noopener">Duo Gourmet</a> e <a href="https://restaurantweek.com.br" target="_blank" rel="noopener">Restaurant Week</a>)</span>
+        </div>
+    </footer>
+
+    <!-- ================================================
+         MODAL 1: DETALHES DO RESTAURANTE (<dialog closedby="any">)
+         ================================================ -->
+    <dialog id="detailsDialog" closedby="any" aria-labelledby="detailsDialogTitle">
+        <div class="dialog-header">
+            <h2 id="detailsDialogTitle">Detalhes do Restaurante</h2>
+            <form method="dialog">
+                <button type="submit" class="dialog-close-btn" aria-label="Fechar detalhes" autofocus>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </form>
+        </div>
+        <div class="dialog-body" id="detailsDialogBody"></div>
+    </dialog>
+
+    <!-- ================================================
+         MODAL 2: CHAVEAMENTO DA COPA (<dialog closedby="any">)
+         ================================================ -->
+    <dialog id="bracketDialog" closedby="any" aria-labelledby="bracketDialogTitle">
+        <div class="dialog-header">
+            <h2 id="bracketDialogTitle">🏆 Chaveamento da Copa do Jantar</h2>
+            <form method="dialog">
+                <button type="submit" class="dialog-close-btn" aria-label="Fechar chaveamento" autofocus>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </form>
+        </div>
+        <div class="dialog-body" id="bracketDialogBody"></div>
+    </dialog>
+
+    <div id="toastNotification" class="toast-msg" role="status" aria-live="polite" hidden></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>
+    <script src="data/restaurants.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
