@@ -1089,11 +1089,26 @@
         const lat = Number(r.lat) || -19.932;
         const lon = Number(r.lon) || -43.938;
 
-        const mapInstance = L.map(containerId).setView([lat, lon], 16);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap &copy; CARTO',
-            maxZoom: 19
-        }).addTo(mapInstance);
+        // Mesma camada Google Maps Streets (sem necessidade de API Key) usada no Gourmet Map BH
+        const googleStreets = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '&copy; Google Maps'
+        });
+
+        const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        });
+
+        const mapInstance = L.map(containerId, {
+            layers: [googleStreets]
+        }).setView([lat, lon], 16);
+
+        L.control.layers({
+            'Google Maps': googleStreets,
+            'OpenStreetMap': osm
+        }, null, { position: 'topright' }).addTo(mapInstance);
 
         const marker = L.circleMarker([lat, lon], {
             radius: 10,
@@ -1105,6 +1120,10 @@
         }).addTo(mapInstance);
 
         marker.bindPopup(`<strong>${r.name}</strong><br>${r.neighborhood}`).openPopup();
+
+        setTimeout(() => {
+            mapInstance.invalidateSize();
+        }, 250);
 
         if (isChampion) championMapInstance = mapInstance;
         else detailMapInstance = mapInstance;
