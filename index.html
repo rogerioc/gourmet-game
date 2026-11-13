@@ -41,7 +41,7 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="./styles.css?v=1.1">
+    <link rel="stylesheet" href="./styles.css?v=1.3">
 
     <!-- Analytics (Umami Cloud - Sem Cookies & LGPD-friendly) -->
     <script defer src="https://cloud.umami.is/script.js"
@@ -98,10 +98,12 @@
                     <i class="fa-solid fa-award" aria-hidden="true"></i>
                     <label for="filterCircuit">Circuito:</label>
                     <select id="filterCircuit">
-                        <option value="all">Todos os Circuitos</option>
+                        <option value="all">Todos (Duo + RW + Top BH)</option>
                         <option value="duo">Duo Gourmet</option>
                         <option value="rw">Restaurant Week</option>
+                        <option value="top_bh">⭐ Top BH (Google 4.5+ &amp; Hits)</option>
                         <option value="both">Duo + Restaurant Week</option>
+                        <option value="custom">🙋 Adicionados por Você</option>
                     </select>
                 </div>
 
@@ -130,9 +132,16 @@
                 </div>
             </div>
 
-            <div class="pool-badge" id="poolCountBadge" aria-live="polite">
-                <i class="fa-solid fa-fire" aria-hidden="true"></i>
-                <span>Carregando...</span>
+            <div class="context-right-actions">
+                <button type="button" class="btn-add-restaurant" id="openAddModalBtn"
+                    title="Escalar um restaurante na disputa ou sugerir um novo lugar">
+                    <i class="fa-solid fa-circle-plus" aria-hidden="true"></i>
+                    <span>Incluir / Sugerir Restaurante</span>
+                </button>
+                <div class="pool-badge" id="poolCountBadge" aria-live="polite">
+                    <i class="fa-solid fa-fire" aria-hidden="true"></i>
+                    <span>Carregando...</span>
+                </div>
             </div>
         </div>
     </section>
@@ -334,14 +343,103 @@
         <div class="dialog-body" id="bracketDialogBody"></div>
     </dialog>
 
+    <!-- ================================================
+         MODAL 3: INCLUIR / SUGERIR RESTAURANTE (<dialog closedby="any">)
+         ================================================ -->
+    <dialog id="addRestaurantDialog" closedby="any" aria-labelledby="addRestaurantDialogTitle">
+        <div class="dialog-header">
+            <h2 id="addRestaurantDialogTitle">➕ Incluir ou Sugerir Restaurante</h2>
+            <form method="dialog">
+                <button type="submit" class="dialog-close-btn" aria-label="Fechar janela de adição" autofocus>
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </form>
+        </div>
+        <div class="dialog-body">
+            <!-- Bloco 1: Escalar da base existente na Copa -->
+            <div class="add-modal-section">
+                <h3><i class="fa-solid fa-bolt" style="color: var(--accent);"></i> 1. Escalar Restaurante na Copa de Hoje</h3>
+                <p class="add-modal-hint">Quer garantir que um restaurante específico entre na disputa de hoje? Busque abaixo nos 1.254 lugares cadastrados:</p>
+                <div class="pin-search-box">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input type="search" id="pinSearchInput" placeholder="Buscar por nome ou bairro (ex: Glouton, Xapuri, Ninna...)" autocomplete="off">
+                </div>
+                <div id="pinSearchResults" class="pin-search-results"></div>
+                <div id="pinnedCurrentList" class="pinned-pills-wrap"></div>
+            </div>
+
+            <!-- Bloco 2: Cadastrar restaurante personalizado & enviar sugestão -->
+            <div class="add-modal-section">
+                <h3><i class="fa-solid fa-utensils" style="color: var(--accent);"></i> 2. Não achou na lista? Adicione agora!</h3>
+                <p class="add-modal-hint">Ele entra na hora no seu jogo (Copa e Roleta) e também pode ser enviado como sugestão para entrarmos com nota do Google e Instagram na base oficial.</p>
+
+                <form id="customRestaurantForm" class="custom-rest-form">
+                    <div class="form-row-2">
+                        <div class="form-field">
+                            <label for="customRestName">Nome do Restaurante *</label>
+                            <input type="text" id="customRestName" required placeholder="Ex: Biroska S2, Pacato...">
+                        </div>
+                        <div class="form-field">
+                            <label for="customRestNeigh">Bairro *</label>
+                            <input type="text" id="customRestNeigh" required placeholder="Ex: Lourdes, Santa Tereza...">
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-field">
+                            <label for="customRestCuisine">Culinária</label>
+                            <select id="customRestCuisine">
+                                <option value="Contemporânea">Contemporânea</option>
+                                <option value="Italiana">Italiana</option>
+                                <option value="Gastrobar">Gastrobar / Bar</option>
+                                <option value="Brasileira / Mineira">Brasileira / Mineira</option>
+                                <option value="Carnes">Carnes / Parrilla</option>
+                                <option value="Pizzaria">Pizzaria</option>
+                                <option value="Japonesa">Japonesa / Asiática</option>
+                                <option value="Bistrô">Bistrô / Francesa</option>
+                                <option value="Hamburgueria">Hamburgueria</option>
+                                <option value="Variada">Variada</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="customRestCity">Cidade</label>
+                            <select id="customRestCity">
+                                <option value="Belo Horizonte">Belo Horizonte</option>
+                                <option value="Nova Lima">Nova Lima</option>
+                                <option value="Contagem">Contagem</option>
+                                <option value="Sao Paulo">São Paulo</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="customRestInsta">@Instagram (opcional)</label>
+                            <input type="text" id="customRestInsta" placeholder="Ex: @curtebh">
+                        </div>
+                    </div>
+
+                    <label class="suggest-checkbox-label">
+                        <input type="checkbox" id="sendOfficialSuggestionCheck" checked>
+                        <span>💡 Enviar também como sugestão para a curadoria oficial do <strong>Gourmet Map &amp; Game</strong></span>
+                    </label>
+
+                    <button type="submit" class="btn-pick" style="width: 100%; justify-content: center;">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        Adicionar ao Jogo e Escalar na Copa!
+                    </button>
+                </form>
+
+                <div id="customSavedListContainer"></div>
+            </div>
+        </div>
+    </dialog>
+
     <div id="toastNotification" class="toast-msg" role="status" aria-live="polite" hidden></div>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>
-    <script src="./data/restaurants.js?v=1.2"></script>
-    <script src="./app.js?v=1.2"></script>
+    <script src="./data/restaurants.js?v=1.3"></script>
+    <script src="./app.js?v=1.3"></script>
 </body>
 
 </html>

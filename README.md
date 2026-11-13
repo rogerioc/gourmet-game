@@ -3,7 +3,7 @@
 # 🎲 Gourmet Game BH — Qual o Seu Restaurante de Hoje?
 
 > **Acabe com a indecisão de "onde vamos comer hoje?" em menos de 30 segundos.**  
-> Um mini-game interativo com **1.209 restaurantes** mapeados dos circuitos **Duo Gourmet** e **Restaurant Week** em Belo Horizonte, região e São Paulo.
+> Um mini-game interativo com **1.254 restaurantes** mapeados dos circuitos **Duo Gourmet**, **Restaurant Week** e **⭐ Top BH (Google 4.5+ & Hits do Instagram)** em Belo Horizonte, região e São Paulo.
 
 ### 👉 **Acesse e jogue aqui:** [https://rogerioc.github.io/gourmet-game/](https://rogerioc.github.io/gourmet-game/)
 
@@ -57,6 +57,8 @@ flowchart LR
 | **🏆 Copa do Jantar (4, 8 ou 16)** | Torneio de eliminação rápida sem repetir redes/franquias na mesma chave, com atalhos de teclado (`1`/`⬅️` e `2`/`➡️`) e opção de trocar dupla. |
 | **🎰 Roleta Relacional com Trava 🔒** | Trave a **Culinária** ou o **Bairro** e gire os demais rolos sabendo que o motor filtra apenas combinações 100% válidas. |
 | **✨ Plano B Inteligente (Motor de Afinidade)** | Aprende com os seus votos durante a Copa e combina com a distância geográfica (*Haversine*) para recomendar **3 alternativas próximas** caso o vencedor esteja com fila. |
+| **⭐ Circuito Top BH (Google 4.5+ & Hits)** | Curadoria automatizada via Google Places API e guias gastronômicos de BH (*Cozinha Tupis, Trintaeum, Xapuri, Biroska, Taste-Vin, San Ro, Gennaro, Nino Cucina*, etc.) com horários reais e `@instagram`. |
+| **➕ Escalar ou Sugerir Restaurante** | Escale qualquer restaurante na chave da Copa de hoje, adicione lugares personalizados instantaneamente (`localStorage`) ou envie sugestões para a curadoria oficial. |
 | **📲 Deep-Link de Convite (`?winner=slug`)** | Gera um link direto para mandar no WhatsApp do casal ou grupo de amigos já abrindo na tela do restaurante escolhido. |
 
 ---
@@ -98,6 +100,13 @@ O desenvolvimento, curadoria de dados, design visual e automação deste projeto
 
 2. **Sincronizar base de restaurantes (após atualizar os scrapers na pasta raiz):**
    ```bash
+   # Coletar/atualizar restaurantes Top BH (Google Places 4.5+ & Hits do Instagram)
+   python3 ../fetch_top_bh_google.py
+
+   # Ou adicionar rapidamente um restaurante sugerido por amigos:
+   python3 ../fetch_top_bh_google.py --add "Nome do Restaurante, Bairro" "Culinária" "@instagram"
+
+   # Exportar tudo para data/restaurants.js
    python3 sync_data.py
    ```
 

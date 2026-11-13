@@ -1,5 +1,6 @@
 (() => {
-    const ALL_RESTAURANTS = Array.isArray(window.GOURMET_RESTAURANTS) ? window.GOURMET_RESTAURANTS : [];
+    const ALL_RESTAURANTS = Array.isArray(window.GOURMET_RESTAURANTS) ? [...window.GOURMET_RESTAURANTS] : [];
+    const CUSTOM_STORAGE_KEY = 'gourmet_custom_restaurants_v1';
 
     const DAYS_PT = [
         'Domingo',
@@ -22,6 +23,7 @@
             cuisine: ''
         },
         filteredPool: [],
+        pinnedIds: new Set(),
 
         // Estado da Copa do Jantar (Bracket)
         tournament: {
@@ -43,6 +45,46 @@
             isSpinning: false
         }
     };
+
+    function getSavedCustomRestaurants() {
+        try {
+            const raw = localStorage.getItem(CUSTOM_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (err) {
+            return [];
+        }
+    }
+
+    function saveCustomRestaurants(list) {
+        try {
+            localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(list));
+        } catch (err) {
+            // Ignora caso localStorage esteja indisponível
+        }
+    }
+
+    function syncCustomRestaurantsIntoAll() {
+        // Remover customizados antigos de ALL_RESTAURANTS e reinserir os salvos
+        for (let i = ALL_RESTAURANTS.length - 1; i >= 0; i--) {
+            if (ALL_RESTAURANTS[i].is_custom) {
+                ALL_RESTAURANTS.splice(i, 1);
+            }
+        }
+        const saved = getSavedCustomRestaurants();
+        saved.forEach(item => {
+            ALL_RESTAURANTS.push(item);
+        });
+    }
+
+    function matchesCircuitFilter(r, circuit) {
+        if (!circuit || circuit === 'all') return true;
+        if (circuit === 'duo') return Boolean(r.is_duo);
+        if (circuit === 'rw') return Boolean(r.is_restaurant_week);
+        if (circuit === 'top_bh') return Boolean(r.is_top_bh);
+        if (circuit === 'both') return Boolean(r.is_duo && r.is_restaurant_week);
+        if (circuit === 'custom') return Boolean(r.is_custom);
+        return true;
+    }
 
     let championMapInstance = null;
     let detailMapInstance = null;
@@ -224,9 +266,7 @@
 
         const basePool = ALL_RESTAURANTS.filter(r => {
             if (state.filters.city && r.city !== state.filters.city) return false;
-            if (state.filters.circuit === 'duo' && !r.is_duo) return false;
-            if (state.filters.circuit === 'rw' && !r.is_restaurant_week) return false;
-            if (state.filters.circuit === 'both' && (!r.is_duo || !r.is_restaurant_week)) return false;
+            if (!matchesCircuitFilter(r, state.filters.circuit)) return false;
             if (!matchesMomentFilter(r, state.filters.moment)) return false;
             return true;
         });
@@ -255,9 +295,7 @@
 
         state.filteredPool = ALL_RESTAURANTS.filter(r => {
             if (state.filters.city && r.city !== state.filters.city) return false;
-            if (state.filters.circuit === 'duo' && !r.is_duo) return false;
-            if (state.filters.circuit === 'rw' && !r.is_restaurant_week) return false;
-            if (state.filters.circuit === 'both' && (!r.is_duo || !r.is_restaurant_week)) return false;
+            if (!matchesCircuitFilter(r, state.filters.circuit)) return false;
             if (!matchesMomentFilter(r, state.filters.moment)) return false;
             if (state.filters.cuisine && r.cuisine !== state.filters.cuisine) return false;
             return true;
@@ -372,7 +410,13 @@
             effectiveSize = effectiveSize / 2;
         }
 
-        const picked = sampleDiverseRestaurants(state.filteredPool, effectiveSize);
+        // Incluir prioritariamente restaurantes escalados pelo usuário (state.pinnedIds)
+        const pinnedItems = ALL_RESTAURANTS.filter(r => state.pinnedIds.has(r.id)).slice(0, effectiveSize);
+        const excludeSet = new Set(pinnedItems.map(r => r.id));
+        const remainingNeeded = Math.max(0, effectiveSize - pinnedItems.length);
+        const randomPicked = sampleDiverseRestaurants(state.filteredPool, remainingNeeded, excludeSet);
+        const picked = shuffle([...pinnedItems, ...randomPicked]);
+
         state.tournament.usedIds = new Set(picked.map(r => r.id));
         state.tournament.currentRoundIdx = 0;
         state.tournament.currentMatchIdx = 0;
@@ -441,6 +485,8 @@
                         <div class="circuit-badges">
                             ${r.is_duo ? '<span class="badge-duo">Duo Gourmet</span>' : ''}
                             ${r.is_restaurant_week ? '<span class="badge-rw">Restaurant Week</span>' : ''}
+                            ${r.is_top_bh ? '<span class="badge-topbh">⭐ Top BH</span>' : ''}
+                            ${r.is_custom ? '<span class="badge-custom">🙋 Adicionado</span>' : ''}
                         </div>
                     </div>
 
@@ -776,6 +822,8 @@
                         <div class="circuit-badges">
                             ${r.is_duo ? '<span class="badge-duo">Duo Gourmet</span>' : ''}
                             ${r.is_restaurant_week ? '<span class="badge-rw">Restaurant Week</span>' : ''}
+                            ${r.is_top_bh ? '<span class="badge-topbh">⭐ Top BH</span>' : ''}
+                            ${r.is_custom ? '<span class="badge-custom">🙋 Adicionado</span>' : ''}
                         </div>
                     </div>
                     <div class="card-title-group">
@@ -1031,10 +1079,16 @@
                     <i class="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>
                     Como Chegar (Google Maps)
                 </a>
-                ${duoUrl ? `
+                ${duoUrl && (r.is_duo || r.is_restaurant_week) ? `
                     <a href="${duoUrl}" target="_blank" rel="noopener" class="btn-action btn-duo-external" data-umami-event="open_duo_or_rw" data-umami-event-restaurant="${r.name}">
                         <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                         ${r.is_duo ? 'Ver no Duo Gourmet' : 'Ver na Restaurant Week'}
+                    </a>
+                ` : ''}
+                ${r.instagram ? `
+                    <a href="https://www.instagram.com/${r.instagram.replace('@', '').trim()}/" target="_blank" rel="noopener" class="btn-action btn-duo-external" data-umami-event="open_instagram" data-umami-event-restaurant="${r.name}">
+                        <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                        Instagram (${r.instagram})
                     </a>
                 ` : ''}
             </div>
@@ -1267,6 +1321,101 @@
         renderSvgBracketDiagram('svgBracketCanvas');
     }
 
+    // ========================================================
+    // MODAL 3: ESCALAR NA COPA / ADICIONAR & SUGERIR RESTAURANTE
+    // ========================================================
+    function renderPinnedPillsAndCustomList() {
+        const pinnedContainer = document.getElementById('pinnedCurrentList');
+        if (pinnedContainer) {
+            const pinnedItems = ALL_RESTAURANTS.filter(r => state.pinnedIds.has(r.id));
+            if (pinnedItems.length === 0) {
+                pinnedContainer.innerHTML = '';
+            } else {
+                pinnedContainer.innerHTML = `
+                    <div style="width: 100%; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 4px;">
+                        📌 Escalados garantidos na chave (${pinnedItems.length}):
+                    </div>
+                    ${pinnedItems.map(r => `
+                        <span class="pinned-pill">
+                            <span>${r.name}</span>
+                            <button type="button" data-unpin-id="${r.id}" title="Remover da escalação">✕</button>
+                        </span>
+                    `).join('')}
+                `;
+            }
+        }
+
+        const customContainer = document.getElementById('customSavedListContainer');
+        if (customContainer) {
+            const saved = getSavedCustomRestaurants();
+            if (saved.length === 0) {
+                customContainer.innerHTML = '';
+            } else {
+                customContainer.innerHTML = `
+                    <div style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
+                            🙋 Restaurantes adicionados por você (${saved.length}):
+                        </div>
+                        <div class="pinned-pills-wrap">
+                            ${saved.map(r => `
+                                <span class="pinned-pill" style="background: #ecfdf5; color: #047857; border-color: #a7f3d0;">
+                                    <span>${r.name} (${r.neighborhood})</span>
+                                    <button type="button" data-delete-custom-id="${r.id}" title="Excluir restaurante" style="color: #047857;">🗑️</button>
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function renderPinSearchResults(query) {
+        const resultsEl = document.getElementById('pinSearchResults');
+        if (!resultsEl) return;
+        const q = (query || '').trim().toLowerCase();
+        if (q.length < 2) {
+            resultsEl.innerHTML = '';
+            return;
+        }
+
+        const matches = ALL_RESTAURANTS.filter(r =>
+            r.name.toLowerCase().includes(q) ||
+            r.neighborhood.toLowerCase().includes(q) ||
+            r.cuisine.toLowerCase().includes(q)
+        ).slice(0, 6);
+
+        if (matches.length === 0) {
+            resultsEl.innerHTML = `<div style="font-size: 12px; color: var(--text-muted); padding: 6px;">Nenhum restaurante encontrado com "${query}". Cadastre no formulário abaixo! 👇</div>`;
+            return;
+        }
+
+        resultsEl.innerHTML = matches.map(r => {
+            const isPinned = state.pinnedIds.has(r.id);
+            return `
+                <div class="pin-result-item">
+                    <div>
+                        <strong>${r.name}</strong>
+                        <span>${r.cuisine} • ${r.neighborhood}, ${r.city} ${r.google_rating ? `• ⭐ ${r.google_rating}` : ''}</span>
+                    </div>
+                    <button type="button" class="btn-secondary" data-pin-toggle-id="${r.id}" style="padding: 5px 10px; font-size: 12px;">
+                        ${isPinned ? '✓ Escalado' : '⚡ Escalar na Copa'}
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function openAddRestaurantModal() {
+        const dialog = document.getElementById('addRestaurantDialog');
+        if (!dialog) return;
+        const searchInput = document.getElementById('pinSearchInput');
+        if (searchInput) searchInput.value = '';
+        renderPinSearchResults('');
+        renderPinnedPillsAndCustomList();
+        dialog.showModal();
+    }
+
     // Fallback obrigatório (modern-web-guidance) para light-dismiss em navegadores sem suporte a <dialog closedby="any">
     function setupDialogFallbacks() {
         const dialogs = document.querySelectorAll('dialog[closedby="any"]');
@@ -1366,7 +1515,126 @@
         });
 
         document.getElementById('openBracketBtn')?.addEventListener('click', openBracketModal);
+        document.getElementById('openAddModalBtn')?.addEventListener('click', openAddRestaurantModal);
         document.getElementById('rerollPairBtn')?.addEventListener('click', rerollCurrentPair);
+
+        document.getElementById('pinSearchInput')?.addEventListener('input', (e) => {
+            renderPinSearchResults(e.target.value);
+        });
+
+        document.getElementById('addRestaurantDialog')?.addEventListener('click', (e) => {
+            const pinToggleBtn = e.target.closest('[data-pin-toggle-id]');
+            if (pinToggleBtn) {
+                const restId = Number(pinToggleBtn.dataset.pinToggleId);
+                if (state.pinnedIds.has(restId)) {
+                    state.pinnedIds.delete(restId);
+                } else {
+                    state.pinnedIds.add(restId);
+                    const rest = ALL_RESTAURANTS.find(r => r.id === restId);
+                    if (rest) showToast(`⚡ ${rest.name} escalado na Copa!`);
+                }
+                renderPinSearchResults(document.getElementById('pinSearchInput')?.value || '');
+                renderPinnedPillsAndCustomList();
+                initTournament(state.tournament.size);
+                return;
+            }
+
+            const unpinBtn = e.target.closest('[data-unpin-id]');
+            if (unpinBtn) {
+                const restId = Number(unpinBtn.dataset.unpinId);
+                state.pinnedIds.delete(restId);
+                renderPinSearchResults(document.getElementById('pinSearchInput')?.value || '');
+                renderPinnedPillsAndCustomList();
+                initTournament(state.tournament.size);
+                return;
+            }
+
+            const deleteCustomBtn = e.target.closest('[data-delete-custom-id]');
+            if (deleteCustomBtn) {
+                const customId = Number(deleteCustomBtn.dataset.deleteCustomId);
+                const updated = getSavedCustomRestaurants().filter(r => r.id !== customId);
+                saveCustomRestaurants(updated);
+                state.pinnedIds.delete(customId);
+                syncCustomRestaurantsIntoAll();
+                populateContextDropdowns();
+                applyFiltersAndRefresh(true);
+                renderPinnedPillsAndCustomList();
+                showToast('🗑️ Restaurante personalizado removido.');
+            }
+        });
+
+        document.getElementById('customRestaurantForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('customRestName')?.value.trim();
+            const neighborhood = document.getElementById('customRestNeigh')?.value.trim();
+            const cuisine = document.getElementById('customRestCuisine')?.value || 'Contemporânea';
+            const city = document.getElementById('customRestCity')?.value || 'Belo Horizonte';
+            const instagram = document.getElementById('customRestInsta')?.value.trim() || '';
+            const sendSuggestion = document.getElementById('sendOfficialSuggestionCheck')?.checked;
+
+            if (!name || !neighborhood) return;
+
+            const customId = Date.now();
+            const newRest = {
+                id: customId,
+                slug: `custom-${customId}`,
+                name,
+                cuisine,
+                rating: 'Novo',
+                neighborhood,
+                city,
+                address: `${neighborhood}, ${city}`,
+                phone: '',
+                description: `Restaurante adicionado pelos jogadores (${cuisine} em ${neighborhood})${instagram ? ` • Instagram: ${instagram}` : ''}.`,
+                highlights: [cuisine, neighborhood],
+                instagram,
+                website: '',
+                url: '',
+                lat: city === 'Belo Horizonte' ? -19.932 : -23.561,
+                lon: city === 'Belo Horizonte' ? -43.938 : -46.656,
+                color: '#059669',
+                schedule: {},
+                google_rating: null,
+                google_reviews_count: null,
+                google_price_level: null,
+                google_maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${neighborhood} ${city}`)}`,
+                is_duo: false,
+                is_restaurant_week: false,
+                is_top_bh: false,
+                is_custom: true
+            };
+
+            const saved = getSavedCustomRestaurants();
+            saved.push(newRest);
+            saveCustomRestaurants(saved);
+            syncCustomRestaurantsIntoAll();
+
+            // Escalar automaticamente na Copa atual
+            state.pinnedIds.add(customId);
+
+            if (sendSuggestion) {
+                trackGameEvent('suggest_restaurant', {
+                    name,
+                    neighborhood,
+                    cuisine,
+                    city,
+                    instagram
+                });
+            }
+
+            populateContextDropdowns();
+            applyFiltersAndRefresh(true);
+            renderPinnedPillsAndCustomList();
+
+            document.getElementById('customRestName').value = '';
+            document.getElementById('customRestNeigh').value = '';
+            document.getElementById('customRestInsta').value = '';
+
+            document.getElementById('addRestaurantDialog')?.close();
+            showToast(sendSuggestion
+                ? `🎉 "${name}" entrou na Copa e foi enviado como sugestão!`
+                : `🎉 "${name}" adicionado e escalado na Copa!`);
+        });
 
         // Delegação de cliques nos cards (Escolher / Ver detalhes)
         document.addEventListener('click', (e) => {
@@ -1458,6 +1726,7 @@
         }
 
         setupDialogFallbacks();
+        syncCustomRestaurantsIntoAll();
         populateContextDropdowns();
         initEventListeners();
         applyFiltersAndRefresh(true);

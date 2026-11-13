@@ -208,12 +208,23 @@ def main():
     bh_path = os.path.join(PARENT_DIR, "restaurantes_bh.json")
     sp_path = os.path.join(PARENT_DIR, "restaurantes_sp.json")
     rw_path = os.path.join(PARENT_DIR, "restaurant_week_bh.json")
+    top_bh_path = os.path.join(PARENT_DIR, "top_bh.json")
 
     bh_restaurants = []
     if os.path.exists(bh_path):
         with open(bh_path, "r", encoding="utf-8") as f:
             bh_restaurants = json.load(f)
         bh_restaurants = merge_restaurant_week(bh_restaurants, rw_path)
+
+    top_bh_restaurants = []
+    if os.path.exists(top_bh_path):
+        with open(top_bh_path, "r", encoding="utf-8") as f:
+            top_bh_restaurants = json.load(f)
+        for r in top_bh_restaurants:
+            r["is_duo"] = False
+            r["is_restaurant_week"] = False
+            r["is_top_bh"] = True
+            r["restaurant_week"] = None
 
     sp_restaurants = []
     if os.path.exists(sp_path):
@@ -222,9 +233,10 @@ def main():
         for r in sp_restaurants:
             r["is_duo"] = True
             r["is_restaurant_week"] = False
+            r["is_top_bh"] = False
             r["restaurant_week"] = None
 
-    all_raw = bh_restaurants + sp_restaurants
+    all_raw = bh_restaurants + top_bh_restaurants + sp_restaurants
     exported = []
 
     for idx, r in enumerate(all_raw):
@@ -238,8 +250,8 @@ def main():
         city_raw = (r.get("city") or "Belo Horizonte").replace("-", " ").title()
         neighborhood = (r.get("neighborhood") or "Centro").strip()
 
-        slug = ""
-        if r.get("url"):
+        slug = r.get("slug") or ""
+        if not slug and r.get("url"):
             slug = r["url"].rstrip("/").split("/")[-1]
 
         cleaned_desc = strip_ai_slop(r.get("description", ""))
@@ -271,6 +283,7 @@ def main():
             "google_editorial_summary": r.get("google_editorial_summary"),
             "is_duo": bool(r.get("is_duo", True)),
             "is_restaurant_week": bool(r.get("is_restaurant_week", False)),
+            "is_top_bh": bool(r.get("is_top_bh", False)),
             "restaurant_week": r.get("restaurant_week"),
         })
 
