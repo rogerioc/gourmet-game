@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,15 +12,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Leaflet CSS para o mini-mapa do restaurante vencedor -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="./styles.css?v=1.1">
 
     <!-- Analytics (Umami Cloud - Sem Cookies & LGPD-friendly) -->
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="95596978-ae9a-43d9-b9cb-5f4d3c93ea3f"></script>
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="95596978-ae9a-43d9-b9cb-5f4d3c93ea3f"></script>
 </head>
+
 <body>
 
     <!-- Top Header -->
@@ -27,7 +31,7 @@
         <div class="header-inner">
             <a href="#" class="brand" id="brandHomeLink">
                 <div class="brand-icon" aria-hidden="true">
-                    <i class="fa-solid fa-dice"></i>
+                    <img src="favicon.png" alt="Logo Gourmet Game" class="brand-logo" width="42" height="42">
                 </div>
                 <div class="brand-text">
                     <h1>Gourmet <span>Game</span></h1>
@@ -46,7 +50,8 @@
                 </button>
             </nav>
 
-            <a href="https://rogerioc.github.io/gourmet-map/" class="header-map-link" id="openFullMapLink" target="_blank" rel="noopener">
+            <a href="https://rogerioc.github.io/gourmet-map/" class="header-map-link" id="openFullMapLink"
+                target="_blank" rel="noopener">
                 <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
                 Abrir Mapa Completo
             </a>
@@ -120,7 +125,8 @@
                     <span class="round-badge" id="roundBadge">Quartas de Final</span>
                     <div>
                         <h2 class="round-title" id="battle-heading" tabindex="-1">Qual dá mais vontade hoje?</h2>
-                        <p class="round-subtitle" id="matchCounterText">Duelo 1 de 4 • Escolha o seu preferido para avançar</p>
+                        <p class="round-subtitle" id="matchCounterText">Duelo 1 de 4 • Escolha o seu preferido para
+                            avançar</p>
                     </div>
                 </div>
 
@@ -153,7 +159,8 @@
                     <!-- VS Divider -->
                     <div class="vs-divider">
                         <div class="vs-circle" aria-hidden="true">VS</div>
-                        <button type="button" class="reroll-pair-btn" id="rerollPairBtn" title="Não curtiu nenhum dos dois? Trocar esta dupla">
+                        <button type="button" class="reroll-pair-btn" id="rerollPairBtn"
+                            title="Não curtiu nenhum dos dois? Trocar esta dupla">
                             <i class="fa-solid fa-shuffle" aria-hidden="true"></i>
                             Trocar dupla
                         </button>
@@ -172,14 +179,16 @@
             <div class="slot-machine-shell">
                 <div class="slot-header">
                     <h2 id="slot-heading" tabindex="-1">🎰 Roleta Gourmet com Trava</h2>
-                    <p>Gostou da culinária ou do bairro sorteado? Clique em <strong>Travar 🔒</strong> e gire apenas os outros rolos!</p>
+                    <p>Gostou da culinária ou do bairro sorteado? Clique em <strong>Travar 🔒</strong> e gire apenas os
+                        outros rolos!</p>
                 </div>
 
                 <div class="reels-grid">
                     <!-- Rolo 1: Culinária -->
                     <div class="reel-box" id="reelBoxCuisine">
                         <div class="reel-top">
-                            <span class="reel-label"><i class="fa-solid fa-utensils" aria-hidden="true"></i> 1. Culinária</span>
+                            <span class="reel-label"><i class="fa-solid fa-utensils" aria-hidden="true"></i> 1.
+                                Culinária</span>
                             <button type="button" class="lock-btn" id="lockCuisineBtn" aria-pressed="false">
                                 <i class="fa-solid fa-lock-open" aria-hidden="true"></i>
                                 <span>Travar</span>
@@ -188,7 +197,8 @@
                         <div class="reel-window" id="reelWindowCuisine">
                             <span class="reel-value" id="reelValueCuisine">—</span>
                         </div>
-                        <select id="manualCuisineSelect" class="reel-manual-select" aria-label="Escolher e travar culinária manualmente">
+                        <select id="manualCuisineSelect" class="reel-manual-select"
+                            aria-label="Escolher e travar culinária manualmente">
                             <option value="">🎲 Sortear qualquer culinária</option>
                         </select>
                     </div>
@@ -196,7 +206,8 @@
                     <!-- Rolo 2: Bairro -->
                     <div class="reel-box" id="reelBoxNeighborhood">
                         <div class="reel-top">
-                            <span class="reel-label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> 2. Bairro</span>
+                            <span class="reel-label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> 2.
+                                Bairro</span>
                             <button type="button" class="lock-btn" id="lockNeighborhoodBtn" aria-pressed="false">
                                 <i class="fa-solid fa-lock-open" aria-hidden="true"></i>
                                 <span>Travar</span>
@@ -205,7 +216,8 @@
                         <div class="reel-window" id="reelWindowNeighborhood">
                             <span class="reel-value" id="reelValueNeighborhood">—</span>
                         </div>
-                        <select id="manualNeighborhoodSelect" class="reel-manual-select" aria-label="Escolher e travar bairro manualmente">
+                        <select id="manualNeighborhoodSelect" class="reel-manual-select"
+                            aria-label="Escolher e travar bairro manualmente">
                             <option value="">🎲 Sortear qualquer bairro</option>
                         </select>
                     </div>
@@ -213,13 +225,15 @@
                     <!-- Rolo 3: Restaurante -->
                     <div class="reel-box" id="reelBoxRestaurant">
                         <div class="reel-top">
-                            <span class="reel-label"><i class="fa-solid fa-store" aria-hidden="true"></i> 3. Restaurante</span>
+                            <span class="reel-label"><i class="fa-solid fa-store" aria-hidden="true"></i> 3.
+                                Restaurante</span>
                             <span class="badge-duo" id="slotPoolSubCount">0 opções</span>
                         </div>
                         <div class="reel-window" id="reelWindowRestaurant">
                             <span class="reel-value" id="reelValueRestaurant">—</span>
                         </div>
-                        <button type="button" class="btn-secondary" id="unlockAllBtn" style="width: 100%; justify-content: center; padding: 6px 10px; font-size: 12px;">
+                        <button type="button" class="btn-secondary" id="unlockAllBtn"
+                            style="width: 100%; justify-content: center; padding: 6px 10px; font-size: 12px;">
                             <i class="fa-solid fa-unlock" aria-hidden="true"></i> Destravar tudo
                         </button>
                     </div>
@@ -230,7 +244,8 @@
                         <i class="fa-solid fa-dice-Five" aria-hidden="true"></i>
                         Girar Roleta!
                     </button>
-                    <button type="button" class="btn-secondary" id="acceptSlotWinnerBtn" style="padding: 14px 22px; font-size: 15px;">
+                    <button type="button" class="btn-secondary" id="acceptSlotWinnerBtn"
+                        style="padding: 14px 22px; font-size: 15px;">
                         <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
                         Escolher este para Hoje!
                     </button>
@@ -255,8 +270,12 @@
     <!-- Footer com atribuição ao autor -->
     <footer class="app-footer">
         <div class="footer-inner">
-            <span>Created by <a href="https://rogerioc.github.io/about/" target="_blank" rel="noopener">Rogerio C.S</a> • Licença MIT</span>
-            <span>Curadoria &amp; Mapa: <a href="https://rogerioc.github.io/gourmet-map/" target="_blank" rel="noopener">Gourmet Map BH</a> (Dados de <a href="https://www.duogourmet.com.br" target="_blank" rel="noopener">Duo Gourmet</a> e <a href="https://restaurantweek.com.br" target="_blank" rel="noopener">Restaurant Week</a>)</span>
+            <span>Created by <a href="https://rogerioc.github.io/about/" target="_blank" rel="noopener">Rogerio C.S</a>
+                • Licença MIT</span>
+            <span>Curadoria &amp; Mapa: <a href="https://rogerioc.github.io/gourmet-map/" target="_blank"
+                    rel="noopener">Gourmet Map BH</a> (Dados de <a href="https://www.duogourmet.com.br" target="_blank"
+                    rel="noopener">Duo Gourmet</a> e <a href="https://restaurantweek.com.br" target="_blank"
+                    rel="noopener">Restaurant Week</a>)</span>
         </div>
     </footer>
 
@@ -293,9 +312,11 @@
     <div id="toastNotification" class="toast-msg" role="status" aria-live="polite" hidden></div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>
     <script src="./data/restaurants.js?v=1.2"></script>
     <script src="./app.js?v=1.2"></script>
 </body>
+
 </html>
