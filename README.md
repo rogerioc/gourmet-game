@@ -9,6 +9,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Jogar%20Agora-rogerioc.github.io%2Fgourmet--game-d97706?style=for-the-badge&logo=gamepad&logoColor=white)](https://rogerioc.github.io/gourmet-game/)
 [![Gourmet Map BH](https://img.shields.io/badge/Mapa%20Interativo-Gourmet%20Map%20BH-9f1239?style=for-the-badge&logo=googlemaps&logoColor=white)](https://rogerioc.github.io/gourmet-map/)
+[![IDE: Google Antigravity](https://img.shields.io/badge/IDE-Google%20Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://github.com/rogerioc/awesome-ai-arsenal)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-rogerioc%2Fgourmet--game-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/rogerioc/gourmet-game)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
@@ -69,6 +70,19 @@ Este projeto foi construído em **Vanilla HTML5 + CSS3 + JavaScript (Zero-Build)
 - **[`Umami Analytics`](https://github.com/umami-software/umami)** *(Cat. 11 — Self-Hosted / Privacidade)*: Telemetria de eventos (`champion_selected`, `whatsapp_invite`, `open_gourmet_map`) 100% sem cookies e compatível com a LGPD.
 - **Leaflet.js + Google Maps Tiles**: Mini-mapa interativo integrado sem necessidade de chaves pagas.
 - **Modern Web Platform APIs**: `document.startViewTransition()` para transições fluidas, `<dialog closedby="any">` nativo no top-layer e respeito a `@media (prefers-reduced-motion)`.
+
+---
+
+## 🤖 IDE & Modelos de IA Utilizados (AI-First Development)
+
+O desenvolvimento, curadoria de dados, design visual e automação deste projeto foram realizados com engenharia assistida por agentes de IA:
+
+| Camada | Ferramenta / Modelo | Papel no Projeto |
+|---|---|---|
+| **IDE Agêntica** | **Google Antigravity IDE** | Ambiente de desenvolvimento agêntico (Google DeepMind) com execução integrada de código, subagentes, skills e deploy no GitHub Pages. |
+| **Modelos Principais (LLM)** | **Gemini 2.5 Pro / Claude Opus 4.6** | Arquitetura da aplicação, motor de recomendação por afinidade (*Plano B Inteligente*), chaveamento em `SVG.js` e sincronização de dados em Python. |
+| **Geração Visual (Ícone/Logo)** | **Image Generator Subagent (Imagen 3)** | Criação do ícone 3D do pino de localização em formato de dado dourado (`favicon.png` / `og-icon.png`). |
+| **Agent Skills & QA** | **`modern-web-guidance` + Playwright** | Aplicação de padrões modernos da Web (View Transitions API, `<dialog closedby="any">`) e captura automatizada dos screenshots em alta resolução (Retina 2x). |
 
 ---
 
